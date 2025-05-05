@@ -1,0 +1,58 @@
+[project]
+name = "vllm-serving"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9,<3.10"
+dependencies = [
+    "accelerate>=1.6.0",
+    "flash-attn>=2.7.4.post1",
+    "qwen-vl-utils[decord]==0.0.8",
+    "setuptools>=80.0.0",
+    "torch>=2.6.0",
+    "torchvision>=0.21.0",
+    "transformers>=4.51.3",
+    "vllm>=0.8.4",
+]
+
+[tool.uv]
+environments = [
+    "sys_platform == 'linux'",
+]
+no-build-isolation = true
+
+[tool.uv.sources]
+torch = [
+  { index = "pytorch-cpu", marker = "sys_platform != 'linux'" },
+  { index = "pytorch-cu124", marker = "sys_platform == 'linux'" },
+]
+torchvision = [
+  { index = "pytorch-cpu", marker = "sys_platform != 'linux'" },
+  { index = "pytorch-cu124", marker = "sys_platform == 'linux'" },
+]
+onnx-graphsurgeon = { index = "nvidia"}
+transformers = { git = "https://github.com/huggingface/transformers" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu124"
+url = "https://download.pytorch.org/whl/cu124"
+explicit = true
+
+[[tool.uv.index]]
+name = "nvidia"
+url = "https://pypi.ngc.nvidia.com"
+explicit = true
+
+[dependency-groups]
+dev = [
+    "ipykernel>=6.29.5",
+    "pre-commit>=4.2.0",
+    "ipywidgets>=8.1.6",
+    "jupyterlab-widgets>=3.0.14",
+    "widgetsnbextension>=4.0.14",
+]
