@@ -231,10 +231,6 @@ curl http://localhost:8003/metrics
 4. Test with your hardware setup
 5. Submit a pull request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
 ## 🔗 Links
 
 - [vLLM Documentation](https://docs.vllm.ai/)
