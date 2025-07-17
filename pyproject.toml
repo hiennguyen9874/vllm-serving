@@ -3,16 +3,16 @@ name = "vllm-serving"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
-requires-python = ">=3.9,<3.10"
+requires-python = ">=3.10,<3.11"
 dependencies = [
     "accelerate>=1.6.0",
-    "flash-attn>=2.7.4.post1",
+    "flashinfer-python==0.2.2",
     "qwen-vl-utils[decord]==0.0.8",
     "setuptools>=80.0.0",
-    "torch>=2.6.0",
-    "torchvision>=0.21.0",
-    "transformers>=4.51.3",
-    "vllm>=0.8.4",
+    "torch==2.6.0",
+    "torchvision==0.21.0",
+    "transformers",
+    "vllm==0.8.5.post1",
 ]
 
 [tool.uv]
@@ -31,7 +31,8 @@ torchvision = [
   { index = "pytorch-cu124", marker = "sys_platform == 'linux'" },
 ]
 onnx-graphsurgeon = { index = "nvidia"}
-transformers = { git = "https://github.com/huggingface/transformers" }
+transformers = { git = "https://github.com/huggingface/transformers", rev = "v4.52.4" }
+flashinfer-python = { index = "flashinfer"}
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
@@ -48,11 +49,12 @@ name = "nvidia"
 url = "https://pypi.ngc.nvidia.com"
 explicit = true
 
+[[tool.uv.index]]
+name = "flashinfer"
+url = "https://flashinfer.ai/whl/cu124/torch2.6/"
+explicit = true
+
 [dependency-groups]
 dev = [
-    "ipykernel>=6.29.5",
-    "pre-commit>=4.2.0",
-    "ipywidgets>=8.1.6",
-    "jupyterlab-widgets>=3.0.14",
-    "widgetsnbextension>=4.0.14",
+    "flash-attn==2.7.4.post1",
 ]
