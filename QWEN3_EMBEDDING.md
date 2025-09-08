@@ -1,7 +1,17 @@
+# Qwen3-Embedding & Qwen3-Reranking
+
+https://github.com/vllm-project/vllm/pull/19260
+
 ## Qwen3 Embedding
 
 ```bash
-curl http://127.0.0.1:8000/v1/embeddings \
+CUDA_VISIBLE_DEVICES=1 TORCH_CUDA_ARCH_LIST="8.0" uv run vllm serve Qwen/Qwen3-Embedding-0.6B \
+    --trust-remote-code \
+    --gpu-memory-utilization 0.25 \
+    --host 0.0.0.0 \
+    --port 8003
+
+curl http://localhost:8003/v1/embeddings \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -14,7 +24,13 @@ curl http://127.0.0.1:8000/v1/embeddings \
 ## Qwen3 Reranking
 
 ```bash
-curl http://127.0.0.1:8000/score \
+CUDA_VISIBLE_DEVICES=1 TORCH_CUDA_ARCH_LIST="8.0" uv run vllm serve tomaarsen/Qwen3-Reranker-0.6B-seq-cls \
+    --trust-remote-code \
+    --gpu-memory-utilization 0.25 \
+    --host 0.0.0.0 \
+    --port 8004
+
+curl http://localhost:8004/score \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -23,8 +39,7 @@ curl http://127.0.0.1:8000/score \
     "model": "tomaarsen/Qwen3-Reranker-0.6B-seq-cls"
   }'
 
-
-curl http://127.0.0.1:8000/rerank \
+curl http://localhost:8004/rerank \
   -H 'accept: application/json' \
   -H 'Content-Type: application/json' \
   -d '{
@@ -32,5 +47,4 @@ curl http://127.0.0.1:8000/rerank \
     "documents": ["pong"],
     "model": "tomaarsen/Qwen3-Reranker-0.6B-seq-cls"
   }'
-
 ```
