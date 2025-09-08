@@ -10,10 +10,10 @@ dependencies = [
     "setuptools>=80.0.0",
     "torch==2.7.1",
     "torchvision==0.22.1",
-    "vllm==0.10.0",
     "transformers",
-    "flash-attn",
-    "flashinfer-python>=0.2.8",
+    "setuptools-scm>=8.3.1",
+    "vllm>=0.10.1.dev538",
+    "triton>=3.3.1",
 ]
 
 [tool.uv]
@@ -32,7 +32,8 @@ torchvision = [
   { index = "pytorch-cu126", marker = "sys_platform == 'linux'" },
 ]
 onnx-graphsurgeon = { index = "nvidia"}
-transformers = { git = "https://github.com/huggingface/transformers", rev = "v4.54.0" }
+transformers = { git = "https://github.com/huggingface/transformers", rev = "v4.55.0" }
+vllm = { git = "https://github.com/vllm-project/vllm" }
 flash-attn = { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.2/flash_attn-2.8.2+cu12torch2.7cxx11abiTRUE-cp310-cp310-linux_x86_64.whl" }
 
 [[tool.uv.index]]
@@ -49,3 +50,9 @@ explicit = true
 name = "nvidia"
 url = "https://pypi.ngc.nvidia.com"
 explicit = true
+
+[dependency-groups]
+dev = [
+    "flash-attn>=2.8.2",
+    "flashinfer-python>=0.3.1",
+]
