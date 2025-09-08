@@ -502,7 +502,7 @@ SchedulerConfig:
 VllmConfig:
   Dataclass which contains all vllm-related configuration. This
       simplifies passing around the distinct configurations in the codebase.
-      
+
 
   --additional-config ADDITIONAL_CONFIG
                         Additional config for specified platform. Different platforms may support different configs. Make sure the configs are valid for the platform you are using.
