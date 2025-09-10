@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ========================================================================================
-# NVIDIA Nemotron Nano 12B v2 - GGUF Deployment Script for vLLM
+# Qwen3-30B-A3B-Thinking-2507 - GGUF Deployment Script for vLLM
 # ========================================================================================
 # 
 # WARNING: GGUF support in vLLM is highly experimental and under-optimized!
@@ -29,17 +29,20 @@ source .venv/bin/activate
 
 # Path to your downloaded GGUF model file
 # Replace this with the actual path to your GGUF file
-export GGUF_MODEL_PATH="/root/.cache/llama.cpp/Mungert_NVIDIA-Nemotron-Nano-12B-v2-GGUF_NVIDIA-Nemotron-Nano-12B-v2-q5_k_m.gguf"
+export GGUF_MODEL_PATH="/root/.cache/llama.cpp/BasedBase_Qwen3-30B-A3B-Thinking-2507-Deepseek-v3.1-Distill_Qwen3-30B-A3B-Thinking-2507-Deepseek-v3.1-Distill-Q5_K_M.gguf"
 
 # Use the original model for tokenizer (recommended by vLLM)
-export TOKENIZER_MODEL="nvidia/NVIDIA-Nemotron-Nano-12B-v2"
+export TOKENIZER_MODEL="Qwen/Qwen3-30B-A3B-Thinking-2507"
 
 # Optional: HuggingFace config path if needed
-export HF_CONFIG_PATH="nvidia/NVIDIA-Nemotron-Nano-12B-v2"
+export HF_CONFIG_PATH="Qwen/Qwen3-30B-A3B-Thinking-2507"
 
 # ========================================================================================
 # Environment Variables
 # ========================================================================================
+
+# Cuda architecture for a100, https://developer.nvidia.com/cuda-gpus
+export TORCH_CUDA_ARCH_LIST="8.0"
 
 # Enable parallel processing for tokenizers
 export TOKENIZERS_PARALLELISM="true"
@@ -93,7 +96,6 @@ vllm serve "$GGUF_MODEL_PATH" \
     --port 8003 \
     --data-parallel-size $DATA_PARALLEL_SIZE \
     --max-num-seqs 16 \
-    --mamba_ssm_cache_dtype float32 \
     --max-model-len 4096 \
     --max-num-batched-tokens 4096 \
     --tensor-parallel-size 1 \

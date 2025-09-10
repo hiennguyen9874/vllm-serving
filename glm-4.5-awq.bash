@@ -52,7 +52,6 @@ vllm serve $MODEL_NAME \
 # --block-size 32 \
 # --swap-space 2 \
 # --cpu-offload-gb 0 \
-# --disable-log-requests \
 # --disable-log-stats \
 # --disable-fastapi-docs \
 # --max-seq-len-to-capture 4096 \
