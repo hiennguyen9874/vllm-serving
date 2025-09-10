@@ -26,7 +26,7 @@ curl http://localhost:8003/v1/embeddings \
 ```bash
 CUDA_VISIBLE_DEVICES=1 TORCH_CUDA_ARCH_LIST="8.0" uv run vllm serve tomaarsen/Qwen3-Reranker-0.6B-seq-cls \
     --trust-remote-code \
-    --gpu-memory-utilization 0.25 \
+    --gpu-memory-utilization 0.35 \
     --host 0.0.0.0 \
     --port 8004
 

@@ -12,7 +12,7 @@ dependencies = [
     "torchvision==0.22.1",
     "transformers",
     "setuptools-scm>=8.3.1",
-    "vllm>=0.10.1.dev538",
+    "vllm>=0.10.1.1",
     "triton>=3.3.1",
 ]
 
@@ -33,7 +33,6 @@ torchvision = [
 ]
 onnx-graphsurgeon = { index = "nvidia"}
 transformers = { git = "https://github.com/huggingface/transformers", rev = "v4.55.0" }
-vllm = { git = "https://github.com/vllm-project/vllm" }
 flash-attn = { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.2/flash_attn-2.8.2+cu12torch2.7cxx11abiTRUE-cp310-cp310-linux_x86_64.whl" }
 
 [[tool.uv.index]]
