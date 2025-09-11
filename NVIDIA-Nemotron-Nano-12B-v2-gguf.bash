@@ -41,6 +41,9 @@ export HF_CONFIG_PATH="nvidia/NVIDIA-Nemotron-Nano-12B-v2"
 # Environment Variables
 # ========================================================================================
 
+# Cuda architecture for a100, https://developer.nvidia.com/cuda-gpus
+export TORCH_CUDA_ARCH_LIST="8.0"
+
 # Enable parallel processing for tokenizers
 export TOKENIZERS_PARALLELISM="true"
 

@@ -44,6 +44,8 @@ export DATA_PARALLEL_SIZE=${DATA_PARALLEL_SIZE:-4}
 # Optimized CUDA memory allocation settings
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True,max_split_size_mb:128"
 
+export VLLM_ATTENTION_BACKEND=FLASHINFER
+
 # Use v1 API for vLLM
 export VLLM_USE_V1=1
 
@@ -63,7 +65,7 @@ vllm serve "$MODEL_NAME" \
     --mamba_ssm_cache_dtype float32 \
     --gpu-memory-utilization 0.90 \
     --host 0.0.0.0 \
-    --port 8003 \
+    --port 8080 \
     --data-parallel-size $DATA_PARALLEL_SIZE \
     --max-num-seqs 16 \
     --max-model-len 4096 \

@@ -2001,7 +2001,7 @@ wheels = [
 
 [[package]]
 name = "vllm"
-version = "0.10.1"
+version = "0.10.1.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "aiohttp", marker = "sys_platform == 'linux'" },
@@ -2058,9 +2058,9 @@ dependencies = [
     { name = "xformers", marker = "platform_machine == 'x86_64' and sys_platform == 'linux'" },
     { name = "xgrammar", marker = "(platform_machine == 'aarch64' and sys_platform == 'linux') or (platform_machine == 'arm64' and sys_platform == 'linux') or (platform_machine == 'x86_64' and sys_platform == 'linux')" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/4a/93/71caa3d72f6d87d0c700db21d72e48eb64432c5a2572fd18a246d130c156/vllm-0.10.1.tar.gz", hash = "sha256:99d00498f25b94767bb2696e88feb67730677dae605c9b8af99492dc3c34492d", size = 10507740, upload-time = "2025-08-19T02:18:19.09Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/ae/a8/b53e7950c05bf8e6ef4438603a70c8992e7bc90fcad5a7a4f360c7d748a6/vllm-0.10.1.1.tar.gz", hash = "sha256:3099824ee4bdaa14c4c4f7178a092101a0ec206d4c9371edf295849b2b730a39", size = 10510801, upload-time = "2025-08-20T23:17:16.776Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/82/f1/f03b4b00e304e943b57b5c3d78c741f78be534dd3d0bc2bb6baf16afbb51/vllm-0.10.1-cp38-abi3-manylinux1_x86_64.whl", hash = "sha256:df04a14116750f05099b84db4474935db80e9b13e8b7a6048d3a3cd64aa98b0c", size = 414399973, upload-time = "2025-08-19T02:18:10.549Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/14/6fac6c3f6be5657a70911c8c48062c4749925dc5e24d254b1ec493add7a0/vllm-0.10.1.1-cp38-abi3-manylinux1_x86_64.whl", hash = "sha256:8ca0dd985e1ceac8540e7719c654f1553b3ba8a43c685ac8d3fa1366ffb6443a", size = 414400912, upload-time = "2025-08-20T23:17:09.179Z" },
 ]
 
 [[package]]
@@ -2097,7 +2097,7 @@ requires-dist = [
     { name = "torchvision", marker = "sys_platform == 'linux'", specifier = "==0.22.1", index = "https://download.pytorch.org/whl/cu126" },
     { name = "transformers", git = "https://github.com/huggingface/transformers?rev=v4.55.0" },
     { name = "triton", specifier = ">=3.3.1" },
-    { name = "vllm", specifier = "==0.10.1" },
+    { name = "vllm", specifier = "==0.10.1.1" },
 ]
 
 [package.metadata.requires-dev]
