@@ -72,7 +72,6 @@ vllm serve "$MODEL_NAME" \
     --max-num-batched-tokens 4096 \
     --tensor-parallel-size 1 \
     --dtype auto \
-    --enforce-eager \
     --no-enable-prefix-caching \
     --enable-chunked-prefill \
     --disable-log-stats
@@ -85,7 +84,6 @@ vllm serve "$MODEL_NAME" \
 # --hf-config-path $HF_CONFIG_PATH: Provide HF config if automatic detection fails
 # --max-num-seqs 16               : Reduced from 64 due to experimental limitations
 # --gpu-memory-utilization 0.90   : Conservative memory usage for
-# --enforce-eager                 : Required for stability with experimental features
 # --dtype auto                    : Let vLLM decide the best dtype for
 # --disable-log-stats             : Reduce overhead in experimental mode
 #
