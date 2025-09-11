@@ -33,7 +33,7 @@ torchvision = [
 ]
 onnx-graphsurgeon = { index = "nvidia"}
 transformers = { git = "https://github.com/huggingface/transformers", rev = "v4.55.0" }
-flash-attn = { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.2/flash_attn-2.8.2+cu12torch2.7cxx11abiTRUE-cp310-cp310-linux_x86_64.whl" }
+flash-attn = { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.0.post2/flash_attn-2.8.0.post2+cu12torch2.7cxx11abiTRUE-cp310-cp310-linux_x86_64.whl" }
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
@@ -52,6 +52,6 @@ explicit = true
 
 [dependency-groups]
 dev = [
-    "flash-attn>=2.8.2",
+    "flash-attn>=2.7.1,<=2.8.0",
     "flashinfer-python>=0.3.1",
 ]
