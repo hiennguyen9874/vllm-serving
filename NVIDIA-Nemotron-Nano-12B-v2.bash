@@ -70,8 +70,8 @@ vllm serve "$MODEL_NAME" \
     --port 8080 \
     --data-parallel-size $DATA_PARALLEL_SIZE \
     --max-num-seqs 16 \
-    --max-model-len 4096 \
-    --max-num-batched-tokens 4096 \
+    --max-model-len 16384 \
+    --max-num-batched-tokens 16384 \
     --tensor-parallel-size 1 \
     --dtype auto \
     --no-enable-prefix-caching \
