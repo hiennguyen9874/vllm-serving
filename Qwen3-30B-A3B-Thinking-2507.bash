@@ -43,18 +43,18 @@ export TENSOR_PARALLEL_SIZE="${TENSOR_PARALLEL_SIZE:-1}"
 
 # --- Profiles ---------------------------------------------------------------------------
 # THROUGHPUT: higher batch and batched tokens; LOW_LATENCY: smaller token bucket for lower ITL
-PROFILE="${PROFILE:-THROUGHPUT}"   # THROUGHPUT | LOW_LATENCY | LONG_CONTEXT
+PROFILE="${PROFILE:-LOW_LATENCY}"   # THROUGHPUT | LOW_LATENCY | LONG_CONTEXT
 
 case "$PROFILE" in
   THROUGHPUT)
     MAX_NUM_SEQS="${MAX_NUM_SEQS:-8}"          # NVIDIA model card suggests starting at 64
-    MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-8192}"  # >= 8192 for throughput
-    MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
+    MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-16384}"  # >= 8192 for throughput
+    MAX_MODEL_LEN="${MAX_MODEL_LEN:-16384}"
     ;;
   LOW_LATENCY)
     MAX_NUM_SEQS="${MAX_NUM_SEQS:-4}"
-    MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-8192}"
-    MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
+    MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-16384}"
+    MAX_MODEL_LEN="${MAX_MODEL_LEN:-16384}"
     ;;
   LONG_CONTEXT)
     # Raise context, but keep batch modest to avoid KV OOM. Adjust as needed.
