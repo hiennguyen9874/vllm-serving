@@ -48,9 +48,9 @@ export TORCH_CUDA_ARCH_LIST="8.0"
 export TOKENIZERS_PARALLELISM="true"
 
 # Specify which GPUs to use
-export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-"1,2,3,4"}
+export CUDA_VISIBLE_DEVICES=${CUDA_VISIBLE_DEVICES:-"0"}
 
-export DATA_PARALLEL_SIZE=${DATA_PARALLEL_SIZE:-4}
+export DATA_PARALLEL_SIZE=${DATA_PARALLEL_SIZE:-1}
 
 # Optimized CUDA memory allocation settings
 export PYTORCH_CUDA_ALLOC_CONF="expandable_segments:True,max_split_size_mb:128"
