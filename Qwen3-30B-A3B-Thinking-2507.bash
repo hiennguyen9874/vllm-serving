@@ -23,7 +23,7 @@ export TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST:-8.0}"
 
 # vLLM V1 engine & attention backend (FlashInfer, Torch SDPA, FlashAttention, etc.)
 export VLLM_USE_V1="${VLLM_USE_V1:-1}"
-export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASHINFER}"
+# export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASHINFER}"
 
 # Avoid CPU oversubscription from tokenizers
 export TOKENIZERS_PARALLELISM="${TOKENIZERS_PARALLELISM:-false}"
@@ -47,18 +47,18 @@ PROFILE="${PROFILE:-THROUGHPUT}"   # THROUGHPUT | LOW_LATENCY | LONG_CONTEXT
 
 case "$PROFILE" in
   THROUGHPUT)
-    MAX_NUM_SEQS="${MAX_NUM_SEQS:-64}"          # NVIDIA model card suggests starting at 64
+    MAX_NUM_SEQS="${MAX_NUM_SEQS:-32}"          # NVIDIA model card suggests starting at 64
     MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-16384}"  # >= 8192 for throughput
     MAX_MODEL_LEN="${MAX_MODEL_LEN:-16384}"
     ;;
   LOW_LATENCY)
-    MAX_NUM_SEQS="${MAX_NUM_SEQS:-32}"
+    MAX_NUM_SEQS="${MAX_NUM_SEQS:-16}"
     MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-8192}"
     MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
     ;;
   LONG_CONTEXT)
     # Raise context, but keep batch modest to avoid KV OOM. Adjust as needed.
-    MAX_NUM_SEQS="${MAX_NUM_SEQS:-32}"
+    MAX_NUM_SEQS="${MAX_NUM_SEQS:-16}"
     MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-32768}"
     MAX_MODEL_LEN="${MAX_MODEL_LEN:-32768}"      # Model supports up to 128k if you have the memory
     ;;
