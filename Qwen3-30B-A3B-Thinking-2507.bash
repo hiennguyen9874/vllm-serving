@@ -134,7 +134,7 @@ vllm serve "$MODEL_NAME" \
   --max-num-batched-tokens "$MAX_NUM_BATCHED_TOKENS" \
   --kv-cache-dtype "$KV_CACHE_DTYPE" \
   --enforce-eager \
-  --enable-reasoning --reasoning-parser deepseek_r1 \
+  --reasoning-parser deepseek_r1 \
   --enable-chunked-prefill \
   --api-server-count "$API_SERVER_COUNT" \
   --enable-prefix-caching
