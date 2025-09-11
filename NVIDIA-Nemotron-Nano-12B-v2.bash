@@ -19,6 +19,7 @@ source .venv/bin/activate
 
 # Model name
 export MODEL_NAME="nvidia/NVIDIA-Nemotron-Nano-12B-v2"
+export SERVED_MODEL_NAME="NVIDIA-Nemotron-Nano-12B-v2"
 
 # Use the original model for tokenizer (recommended by vLLM)
 export TOKENIZER_MODEL="nvidia/NVIDIA-Nemotron-Nano-12B-v2"
@@ -59,6 +60,7 @@ export OMP_NUM_THREADS=1
 echo "Starting vLLM server with model..."
 
 vllm serve "$MODEL_NAME" \
+    --served-model-name "$SERVED_MODEL_NAME" \
     --tokenizer "$TOKENIZER_MODEL" \
     --hf-config-path "$HF_CONFIG_PATH" \
     --trust-remote-code \
