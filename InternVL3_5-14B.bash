@@ -12,8 +12,8 @@ if [[ -d .venv ]]; then
 fi
 
 # --- Model & naming ---------------------------------------------------------------------
-export MODEL_NAME="${MODEL_NAME:-cpatonn/Qwen3-30B-A3B-Thinking-2507-AWQ-4bit}"
-export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-Qwen3-30B-A3B-Thinking-2507}"
+export MODEL_NAME="${MODEL_NAME:-cpatonn/InternVL3_5-14B-AWQ-4bit}"
+export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-InternVL3_5-14B}"
 export TOKENIZER_MODEL="${TOKENIZER_MODEL:-$MODEL_NAME}"
 export HF_CONFIG_PATH="${HF_CONFIG_PATH:-$MODEL_NAME}"
 
@@ -47,14 +47,14 @@ PROFILE="${PROFILE:-LOW_LATENCY}"   # THROUGHPUT | LOW_LATENCY | LONG_CONTEXT
 
 case "$PROFILE" in
   THROUGHPUT)
-    MAX_NUM_SEQS="${MAX_NUM_SEQS:-8}"          # NVIDIA model card suggests starting at 64
-    MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-16384}"  # >= 8192 for throughput
-    MAX_MODEL_LEN="${MAX_MODEL_LEN:-16384}"
+    MAX_NUM_SEQS="${MAX_NUM_SEQS:-16}"          # NVIDIA model card suggests starting at 64
+    MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-4096}"  # >= 4096 for throughput
+    MAX_MODEL_LEN="${MAX_MODEL_LEN:-4096}"
     ;;
   LOW_LATENCY)
     MAX_NUM_SEQS="${MAX_NUM_SEQS:-4}"
-    MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-16384}"
-    MAX_MODEL_LEN="${MAX_MODEL_LEN:-16384}"
+    MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-8192}"
+    MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
     ;;
   LONG_CONTEXT)
     # Raise context, but keep batch modest to avoid KV OOM. Adjust as needed.
@@ -134,35 +134,7 @@ vllm serve "$MODEL_NAME" \
   --max-num-batched-tokens "$MAX_NUM_BATCHED_TOKENS" \
   --kv-cache-dtype "$KV_CACHE_DTYPE" \
   --enforce-eager \
-  --reasoning-parser deepseek_r1 \
   --enable-chunked-prefill \
   --api-server-count "$API_SERVER_COUNT" \
-  --enable-prefix-caching
-
-# Notes:
-# * V1 engine enables chunked prefill by default; no need for --enable-chunked-prefill.
-# * Use --disable-log-stats if you want to minimize logging overhead.
-# * Metrics are exposed on /metrics of the same server port.
-set +x
-
-echo
-echo "vLLM server is running at: http://${HOST}:${API_PORT}"
-echo
-echo "Test (Chat Completions):"
-cat <<'CURL'
-curl -s http://localhost:8000/v1/chat/completions \
-  -H 'Content-Type: application/json' \
-  -d '{
-    "model": "Qwen3-30B-A3B-Thinking-2507",
-    "messages": [
-      {"role": "system", "content": "/think"},
-      {"role": "user", "content": "Hello! How are you?"}
-    ],
-    "max_tokens": 128,
-    "temperature": 0.6,
-    "top_p": 0.95
-  }' | jq .
-CURL
-
-echo
-echo "Prometheus metrics: curl http://localhost:${API_PORT}/metrics | head -n 20"
+  --enable-prefix-caching \
+  --disable-mm-preprocessor-cache

@@ -10,10 +10,10 @@ dependencies = [
     "setuptools>=80.0.0",
     "torch==2.7.1",
     "torchvision==0.22.1",
-    "transformers",
     "setuptools-scm>=8.3.1",
     "vllm==0.10.1.1",
     "triton>=3.3.1",
+    "transformers>=4.56.1",
 ]
 
 [tool.uv]
@@ -32,7 +32,6 @@ torchvision = [
   { index = "pytorch-cu126", marker = "sys_platform == 'linux'" },
 ]
 onnx-graphsurgeon = { index = "nvidia"}
-transformers = { git = "https://github.com/huggingface/transformers", rev = "v4.55.0" }
 flash-attn = { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.0.post2/flash_attn-2.8.0.post2+cu12torch2.7cxx11abiTRUE-cp310-cp310-linux_x86_64.whl" }
 
 [[tool.uv.index]]
