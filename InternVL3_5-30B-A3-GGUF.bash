@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ========================================================================================
-# Nemotron-Nano-12B-v2 on vLLM (V1 engine) - A100 40GB optimized launcher
+# InternVL3_5-30B-A3B on vLLM (V1 engine) - A100 40GB optimized launcher
 # ========================================================================================
 
 set -Eeuo pipefail
@@ -12,10 +12,29 @@ if [[ -d .venv ]]; then
 fi
 
 # --- Model & naming ---------------------------------------------------------------------
-export MODEL_NAME="${MODEL_NAME:-cpatonn/InternVL3_5-14B-AWQ-4bit}"
-export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-InternVL3_5-14B}"
+export MODEL_NAME="${MODEL_NAME:-OpenGVLab/InternVL3_5-30B-A3B}"
+export GGUF_MODEL_PATH="/root/.cache/llama.cpp/bartowski_OpenGVLab_InternVL3_5-30B-A3B-GGUF_OpenGVLab_InternVL3_5-30B-A3B-Q5_K_M.gguf"
+export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-InternVL3_5-30B-A3B}"
 export TOKENIZER_MODEL="${TOKENIZER_MODEL:-$MODEL_NAME}"
 export HF_CONFIG_PATH="${HF_CONFIG_PATH:-$MODEL_NAME}"
+
+# ========================================================================================
+# GGUF Model Validation
+# ========================================================================================
+
+if [ ! -f "$GGUF_MODEL_PATH" ]; then
+    echo "ERROR: GGUF model file not found at: $GGUF_MODEL_PATH"
+    echo ""
+    echo "To obtain a GGUF version of InternVL3_5-30B-A3B:"
+    echo "1. Check if community quantizations are available on HuggingFace"
+    echo "2. Convert the model yourself using llama.cpp tools"
+    echo "3. Use the native format script instead (recommended)"
+    echo ""
+    exit 1
+fi
+
+echo "Found GGUF model at: $GGUF_MODEL_PATH"
+echo "Model size: $(du -h "$GGUF_MODEL_PATH" | cut -f1)"
 
 # --- Hardware / runtime envs ------------------------------------------------------------
 # A100 (SM80)
@@ -44,11 +63,11 @@ export TENSOR_PARALLEL_SIZE="${TENSOR_PARALLEL_SIZE:-1}"
 
 # --- Profiles ---------------------------------------------------------------------------
 # THROUGHPUT: higher batch and batched tokens; LOW_LATENCY: smaller token bucket for lower ITL
-PROFILE="${PROFILE:-LOW_LATENCY}"   # THROUGHPUT | LOW_LATENCY | LONG_CONTEXT
+PROFILE="${PROFILE:-THROUGHPUT}"   # THROUGHPUT | LOW_LATENCY | LONG_CONTEXT
 
 case "$PROFILE" in
   THROUGHPUT)
-    MAX_NUM_SEQS="${MAX_NUM_SEQS:-8}"          # NVIDIA model card suggests starting at 64
+    MAX_NUM_SEQS="${MAX_NUM_SEQS:-16}"          # NVIDIA model card suggests starting at 64
     MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-8192}"  # >= 8192 for throughput
     MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
     ;;
@@ -118,10 +137,11 @@ echo "KV dtype=${KV_CACHE_DTYPE}  max_num_seqs=${MAX_NUM_SEQS}  max_num_batched_
 
 # --- Launch -----------------------------------------------------------------------------
 set -x
-vllm serve "$MODEL_NAME" \
+vllm serve "$GGUF_MODEL_PATH" \
   --served-model-name "$SERVED_MODEL_NAME" \
   --tokenizer "$TOKENIZER_MODEL" \
   --hf-config-path "$HF_CONFIG_PATH" \
+  --load-format gguf \
   --trust-remote-code \
   --dtype auto \
   --host "$HOST" \
@@ -136,5 +156,4 @@ vllm serve "$MODEL_NAME" \
   --enable-chunked-prefill \
   --api-server-count "$API_SERVER_COUNT" \
   --enable-prefix-caching \
-  --mm-processor-cache-gb 0 \
-  --limit-mm-per-prompt '{"image": 1, "video": 0}' \
+  --mm-processor-cache-gb 0
