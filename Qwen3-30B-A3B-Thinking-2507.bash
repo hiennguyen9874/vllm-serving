@@ -100,7 +100,7 @@ export API_SERVER_COUNT="${API_SERVER_COUNT:-1}"
 
 # --- Networking -------------------------------------------------------------------------
 export HOST="${HOST:-0.0.0.0}"
-export API_PORT="${API_PORT:-8000}"
+export PORT="${PORT:-8000}"
 
 # --- Sanity info ------------------------------------------------------------------------
 echo "Using GPUs: $CUDA_VISIBLE_DEVICES (NUM_GPUS=$NUM_GPUS)"
@@ -125,7 +125,7 @@ vllm serve "$MODEL_NAME" \
   --mamba_ssm_cache_dtype float32 \
   --dtype auto \
   --host "$HOST" \
-  --port "$API_PORT" \
+  --port "$PORT" \
   --gpu-memory-utilization "$GPU_MEMORY_UTILIZATION" \
   --tensor-parallel-size "$TENSOR_PARALLEL_SIZE" \
   --data-parallel-size "$DATA_PARALLEL_SIZE" \
@@ -146,7 +146,7 @@ vllm serve "$MODEL_NAME" \
 set +x
 
 echo
-echo "vLLM server is running at: http://${HOST}:${API_PORT}"
+echo "vLLM server is running at: http://${HOST}:${PORT}"
 echo
 echo "Test (Chat Completions):"
 cat <<'CURL'
@@ -165,4 +165,4 @@ curl -s http://localhost:8000/v1/chat/completions \
 CURL
 
 echo
-echo "Prometheus metrics: curl http://localhost:${API_PORT}/metrics | head -n 20"
+echo "Prometheus metrics: curl http://localhost:${PORT}/metrics | head -n 20"

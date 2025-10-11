@@ -101,7 +101,7 @@ export API_SERVER_COUNT="${API_SERVER_COUNT:-1}"
 
 # --- Networking -------------------------------------------------------------------------
 export HOST="${HOST:-0.0.0.0}"
-export API_PORT="${API_PORT:-8000}"
+export PORT="${PORT:-8000}"
 
 # --- Sanity info ------------------------------------------------------------------------
 echo "Using GPUs: $CUDA_VISIBLE_DEVICES (NUM_GPUS=$NUM_GPUS)"
@@ -125,7 +125,7 @@ vllm serve "$MODEL_NAME" \
   --trust-remote-code \
   --dtype auto \
   --host "$HOST" \
-  --port "$API_PORT" \
+  --port "$PORT" \
   --gpu-memory-utilization "$GPU_MEMORY_UTILIZATION" \
   --tensor-parallel-size "$TENSOR_PARALLEL_SIZE" \
   --data-parallel-size "$DATA_PARALLEL_SIZE" \
