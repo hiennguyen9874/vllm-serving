@@ -137,4 +137,4 @@ vllm serve "$MODEL_NAME" \
   --api-server-count "$API_SERVER_COUNT" \
   --enable-prefix-caching \
   --mm-processor-cache-gb 0 \
-  --limit-mm-per-prompt '{"image": 1, "video": 0}' \
+  --limit-mm-per-prompt '{"image": 1, "video": 0}'

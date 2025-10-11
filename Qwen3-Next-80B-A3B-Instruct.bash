@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ========================================================================================
-# InternVL3_5-30B-A3B on vLLM (V1 engine) - A100 40GB optimized launcher
+# Qwen3-Next-80B-A3B-Instruct on vLLM (V1 engine) - A100 40GB optimized launcher
 # ========================================================================================
 
 set -Eeuo pipefail
@@ -12,8 +12,8 @@ if [[ -d .venv ]]; then
 fi
 
 # --- Model & naming ---------------------------------------------------------------------
-export MODEL_NAME="${MODEL_NAME:-OpenGVLab/InternVL3_5-30B-A3B}"
-export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-InternVL3_5-30B-A3B}"
+export MODEL_NAME="${MODEL_NAME:-cpatonn/Qwen3-Next-80B-A3B-Instruct-AWQ-4bit}"
+export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-Qwen3-Next-80B-A3B-Instruct}"
 export TOKENIZER_MODEL="${TOKENIZER_MODEL:-$MODEL_NAME}"
 export HF_CONFIG_PATH="${HF_CONFIG_PATH:-$MODEL_NAME}"
 
@@ -22,33 +22,34 @@ export HF_CONFIG_PATH="${HF_CONFIG_PATH:-$MODEL_NAME}"
 export TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST:-8.0}"
 
 # vLLM V1 engine & attention backend (FlashInfer, Torch SDPA, FlashAttention, etc.)
-export VLLM_USE_V1="${VLLM_USE_V1:-1}"
+# export VLLM_USE_V1="${VLLM_USE_V1:-1}"
 # export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASHINFER}"
-export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASH_ATTN}"
+# export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASH_ATTN}"
 
 # Avoid CPU oversubscription from tokenizers
 export TOKENIZERS_PARALLELISM="${TOKENIZERS_PARALLELISM:-false}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
 
 # Tuning CUDA allocator to reduce fragmentation
-export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True,max_split_size_mb:128}"
+# export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True,max_split_size_mb:128}"
 
 # --- GPU selection & parallelism --------------------------------------------------------
-export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
-IFS=',' read -ra _GPU_ARR <<< "$CUDA_VISIBLE_DEVICES"
-NUM_GPUS="${#_GPU_ARR[@]}"
+export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0,1}"
+# IFS=',' read -ra _GPU_ARR <<< "$CUDA_VISIBLE_DEVICES"
+# NUM_GPUS="${#_GPU_ARR[@]}"
 
 # By default: replicate model per GPU for throughput (DP); keep TP=1 for 12B on 40GB.
-export DATA_PARALLEL_SIZE="${DATA_PARALLEL_SIZE:-$NUM_GPUS}"
-export TENSOR_PARALLEL_SIZE="${TENSOR_PARALLEL_SIZE:-1}"
+# export DATA_PARALLEL_SIZE="${DATA_PARALLEL_SIZE:-$NUM_GPUS}"
+export DATA_PARALLEL_SIZE="${DATA_PARALLEL_SIZE:-1}"
+export TENSOR_PARALLEL_SIZE="${TENSOR_PARALLEL_SIZE:-2}"
 
 # --- Profiles ---------------------------------------------------------------------------
 # THROUGHPUT: higher batch and batched tokens; LOW_LATENCY: smaller token bucket for lower ITL
-PROFILE="${PROFILE:-THROUGHPUT}"   # THROUGHPUT | LOW_LATENCY | LONG_CONTEXT
+PROFILE="${PROFILE:-LOW_LATENCY}"   # THROUGHPUT | LOW_LATENCY | LONG_CONTEXT
 
 case "$PROFILE" in
   THROUGHPUT)
-    MAX_NUM_SEQS="${MAX_NUM_SEQS:-16}"          # NVIDIA model card suggests starting at 64
+    MAX_NUM_SEQS="${MAX_NUM_SEQS:-8}"          # NVIDIA model card suggests starting at 64
     MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-8192}"  # >= 8192 for throughput
     MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
     ;;
@@ -104,14 +105,14 @@ export HOST="${HOST:-0.0.0.0}"
 export API_PORT="${API_PORT:-8000}"
 
 # --- Sanity info ------------------------------------------------------------------------
-echo "Using GPUs: $CUDA_VISIBLE_DEVICES (NUM_GPUS=$NUM_GPUS)"
-python - <<'PY' || true
-try:
-    import vllm, sys
-    print(f"vLLM version: {vllm.__version__}")
-except Exception as e:
-    print("WARNING: Could not import vllm:", e, file=sys.stderr)
-PY
+# echo "Using GPUs: $CUDA_VISIBLE_DEVICES (NUM_GPUS=$NUM_GPUS)"
+# python - <<'PY' || true
+# try:
+#     import vllm, sys
+#     print(f"vLLM version: {vllm.__version__}")
+# except Exception as e:
+#     print("WARNING: Could not import vllm:", e, file=sys.stderr)
+# PY
 
 echo "Profile=${PROFILE}  DP=${DATA_PARALLEL_SIZE}  TP=${TENSOR_PARALLEL_SIZE}"
 echo "KV dtype=${KV_CACHE_DTYPE}  max_num_seqs=${MAX_NUM_SEQS}  max_num_batched_tokens=${MAX_NUM_BATCHED_TOKENS}  max_model_len=${MAX_MODEL_LEN}"
@@ -137,5 +138,6 @@ vllm serve "$MODEL_NAME" \
   --api-server-count "$API_SERVER_COUNT" \
   --enable-prefix-caching \
   --mm-processor-cache-gb 0 \
-  --limit-mm-per-prompt '{"image": 1, "video": 0}'
+  --limit-mm-per-prompt '{"image": 1, "video": 0}' \
+  --skip-mm-profiling
 

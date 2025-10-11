@@ -6,14 +6,16 @@ readme = "README.md"
 requires-python = ">=3.10,<3.11"
 dependencies = [
     "accelerate>=1.6.0",
-    "qwen-vl-utils[decord]==0.0.8",
+    "qwen-vl-utils[decord]==0.0.14",
     "setuptools>=80.0.0",
-    "torch==2.7.1",
-    "torchvision==0.22.1",
+    "torch==2.8.0",
+    "torchvision==0.23.0",
     "setuptools-scm>=8.3.1",
-    "vllm==0.10.1.1",
+    "vllm>=0.11.0",
     "triton>=3.3.1",
-    "transformers>=4.56.1",
+    "transformers==4.57.0",
+    "nvidia-ml-py>=13.580.82",
+    "flash-attn>=2.8.3",
 ]
 
 [tool.uv]
@@ -32,7 +34,7 @@ torchvision = [
   { index = "pytorch-cu126", marker = "sys_platform == 'linux'" },
 ]
 onnx-graphsurgeon = { index = "nvidia"}
-flash-attn = { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.0.post2/flash_attn-2.8.0.post2+cu12torch2.7cxx11abiTRUE-cp310-cp310-linux_x86_64.whl" }
+flash-attn = { url = "https://github.com/Dao-AILab/flash-attention/releases/download/v2.8.3/flash_attn-2.8.3+cu12torch2.8cxx11abiTRUE-cp310-cp310-linux_x86_64.whl" }
 
 [[tool.uv.index]]
 name = "pytorch-cpu"
@@ -51,6 +53,5 @@ explicit = true
 
 [dependency-groups]
 dev = [
-    "flash-attn>=2.7.1,<=2.8.0",
     "flashinfer-python>=0.3.1",
 ]

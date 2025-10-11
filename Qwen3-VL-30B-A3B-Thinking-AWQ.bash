@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ========================================================================================
-# InternVL3_5-30B-A3B on vLLM (V1 engine) - A100 40GB optimized launcher
+# Qwen3-VL-30B-A3B-Thinking on vLLM (V1 engine) - A100 40GB optimized launcher
 # ========================================================================================
 
 set -Eeuo pipefail
@@ -12,8 +12,8 @@ if [[ -d .venv ]]; then
 fi
 
 # --- Model & naming ---------------------------------------------------------------------
-export MODEL_NAME="${MODEL_NAME:-OpenGVLab/InternVL3_5-30B-A3B}"
-export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-InternVL3_5-30B-A3B}"
+export MODEL_NAME="${MODEL_NAME:-QuantTrio/Qwen3-VL-30B-A3B-Thinking-AWQ}"
+export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-Qwen3-VL-30B-A3B-Thinking}"
 export TOKENIZER_MODEL="${TOKENIZER_MODEL:-$MODEL_NAME}"
 export HF_CONFIG_PATH="${HF_CONFIG_PATH:-$MODEL_NAME}"
 
@@ -22,16 +22,16 @@ export HF_CONFIG_PATH="${HF_CONFIG_PATH:-$MODEL_NAME}"
 export TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST:-8.0}"
 
 # vLLM V1 engine & attention backend (FlashInfer, Torch SDPA, FlashAttention, etc.)
-export VLLM_USE_V1="${VLLM_USE_V1:-1}"
+# export VLLM_USE_V1="${VLLM_USE_V1:-1}"
 # export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASHINFER}"
-export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASH_ATTN}"
+# export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASH_ATTN}"
 
 # Avoid CPU oversubscription from tokenizers
 export TOKENIZERS_PARALLELISM="${TOKENIZERS_PARALLELISM:-false}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
 
 # Tuning CUDA allocator to reduce fragmentation
-export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True,max_split_size_mb:128}"
+# export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True,max_split_size_mb:128}"
 
 # --- GPU selection & parallelism --------------------------------------------------------
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
@@ -44,11 +44,11 @@ export TENSOR_PARALLEL_SIZE="${TENSOR_PARALLEL_SIZE:-1}"
 
 # --- Profiles ---------------------------------------------------------------------------
 # THROUGHPUT: higher batch and batched tokens; LOW_LATENCY: smaller token bucket for lower ITL
-PROFILE="${PROFILE:-THROUGHPUT}"   # THROUGHPUT | LOW_LATENCY | LONG_CONTEXT
+PROFILE="${PROFILE:-LOW_LATENCY}"   # THROUGHPUT | LOW_LATENCY | LONG_CONTEXT
 
 case "$PROFILE" in
   THROUGHPUT)
-    MAX_NUM_SEQS="${MAX_NUM_SEQS:-16}"          # NVIDIA model card suggests starting at 64
+    MAX_NUM_SEQS="${MAX_NUM_SEQS:-8}"          # NVIDIA model card suggests starting at 64
     MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-8192}"  # >= 8192 for throughput
     MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
     ;;
@@ -137,5 +137,7 @@ vllm serve "$MODEL_NAME" \
   --api-server-count "$API_SERVER_COUNT" \
   --enable-prefix-caching \
   --mm-processor-cache-gb 0 \
-  --limit-mm-per-prompt '{"image": 1, "video": 0}'
-
+  --limit-mm-per-prompt '{"image": 1, "video": 0}' \
+  --reasoning-parser deepseek_r1 \
+  --swap-space 4 \
+  --skip-mm-profiling
