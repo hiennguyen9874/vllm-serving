@@ -12,8 +12,8 @@ if [[ -d .venv ]]; then
 fi
 
 # --- Model & naming ---------------------------------------------------------------------
-export MODEL_NAME="${MODEL_NAME:-cpatonn/Qwen3-VL-4B-Instruct-AWQ-4bit}"
-export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-Qwen3-VL-4B-Instruct}"
+export MODEL_NAME="${MODEL_NAME:-cpatonn/Qwen3-VL-2B-Instruct-AWQ-4bit}"
+export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-Qwen3-VL-2B-Instruct}"
 export TOKENIZER_MODEL="${TOKENIZER_MODEL:-$MODEL_NAME}"
 export HF_CONFIG_PATH="${HF_CONFIG_PATH:-$MODEL_NAME}"
 
