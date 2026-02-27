@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ========================================================================================
-# Qwen3-VL-8B-Instruct on vLLM (V1 engine) - A100 40GB optimized launcher
+# Nemotron-Nano-12B-v2 on vLLM (V1 engine) - A100 40GB optimized launcher
 # ========================================================================================
 
 set -Eeuo pipefail
@@ -12,8 +12,8 @@ if [[ -d .venv ]]; then
 fi
 
 # --- Model & naming ---------------------------------------------------------------------
-export MODEL_NAME="${MODEL_NAME:-cpatonn/Qwen3-VL-48-Instruct-AWQ-4bit}"
-export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-Qwen3-VL-8B-Instruct}"
+export MODEL_NAME="${MODEL_NAME:-cpatonn/granite-4.0-h-tiny-AWQ-4bit}"
+export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-granite-4.0-h-tiny-AWQ-4bit}"
 export TOKENIZER_MODEL="${TOKENIZER_MODEL:-$MODEL_NAME}"
 export HF_CONFIG_PATH="${HF_CONFIG_PATH:-$MODEL_NAME}"
 
@@ -22,16 +22,15 @@ export HF_CONFIG_PATH="${HF_CONFIG_PATH:-$MODEL_NAME}"
 export TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST:-8.0}"
 
 # vLLM V1 engine & attention backend (FlashInfer, Torch SDPA, FlashAttention, etc.)
-# export VLLM_USE_V1="${VLLM_USE_V1:-1}"
-# export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASHINFER}"
-# export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASH_ATTN}"
+export VLLM_USE_V1="${VLLM_USE_V1:-1}"
+export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASHINFER}"
 
 # Avoid CPU oversubscription from tokenizers
 export TOKENIZERS_PARALLELISM="${TOKENIZERS_PARALLELISM:-false}"
 export OMP_NUM_THREADS="${OMP_NUM_THREADS:-1}"
 
 # Tuning CUDA allocator to reduce fragmentation
-# export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True,max_split_size_mb:128}"
+export PYTORCH_CUDA_ALLOC_CONF="${PYTORCH_CUDA_ALLOC_CONF:-expandable_segments:True,max_split_size_mb:128}"
 
 # --- GPU selection & parallelism --------------------------------------------------------
 export CUDA_VISIBLE_DEVICES="${CUDA_VISIBLE_DEVICES:-0}"
@@ -44,22 +43,22 @@ export TENSOR_PARALLEL_SIZE="${TENSOR_PARALLEL_SIZE:-1}"
 
 # --- Profiles ---------------------------------------------------------------------------
 # THROUGHPUT: higher batch and batched tokens; LOW_LATENCY: smaller token bucket for lower ITL
-PROFILE="${PROFILE:-LOW_LATENCY}"   # THROUGHPUT | LOW_LATENCY | LONG_CONTEXT
+PROFILE="${PROFILE:-THROUGHPUT}"   # THROUGHPUT | LOW_LATENCY | LONG_CONTEXT
 
 case "$PROFILE" in
   THROUGHPUT)
-    MAX_NUM_SEQS="${MAX_NUM_SEQS:-8}"          # NVIDIA model card suggests starting at 64
-    MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-8192}"  # >= 8192 for throughput
-    MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
+    MAX_NUM_SEQS="${MAX_NUM_SEQS:-64}"          # NVIDIA model card suggests starting at 64
+    MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-16384}"  # >= 8192 for throughput
+    MAX_MODEL_LEN="${MAX_MODEL_LEN:-16384}"
     ;;
   LOW_LATENCY)
-    MAX_NUM_SEQS="${MAX_NUM_SEQS:-4}"
+    MAX_NUM_SEQS="${MAX_NUM_SEQS:-32}"
     MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-8192}"
     MAX_MODEL_LEN="${MAX_MODEL_LEN:-8192}"
     ;;
   LONG_CONTEXT)
     # Raise context, but keep batch modest to avoid KV OOM. Adjust as needed.
-    MAX_NUM_SEQS="${MAX_NUM_SEQS:-4}"
+    MAX_NUM_SEQS="${MAX_NUM_SEQS:-32}"
     MAX_NUM_BATCHED_TOKENS="${MAX_NUM_BATCHED_TOKENS:-32768}"
     MAX_MODEL_LEN="${MAX_MODEL_LEN:-32768}"      # Model supports up to 128k if you have the memory
     ;;
@@ -123,6 +122,7 @@ vllm serve "$MODEL_NAME" \
   --tokenizer "$TOKENIZER_MODEL" \
   --hf-config-path "$HF_CONFIG_PATH" \
   --trust-remote-code \
+  --mamba_ssm_cache_dtype float32 \
   --dtype auto \
   --host "$HOST" \
   --port "$PORT" \
@@ -133,10 +133,35 @@ vllm serve "$MODEL_NAME" \
   --max-model-len "$MAX_MODEL_LEN" \
   --max-num-batched-tokens "$MAX_NUM_BATCHED_TOKENS" \
   --kv-cache-dtype "$KV_CACHE_DTYPE" \
+  --enforce-eager \
   --enable-chunked-prefill \
   --api-server-count "$API_SERVER_COUNT" \
-  --enable-prefix-caching \
-  --mm-processor-cache-gb 0 \
-  --limit-mm-per-prompt '{"image": 1, "video": 0}' \
-  --swap-space 4 \
-  --skip-mm-profiling
+  --no-enable-prefix-caching
+
+# Notes:
+# * V1 engine enables chunked prefill by default; no need for --enable-chunked-prefill.
+# * Use --disable-log-stats if you want to minimize logging overhead.
+# * Metrics are exposed on /metrics of the same server port.
+set +x
+
+echo
+echo "vLLM server is running at: http://${HOST}:${PORT}"
+echo
+echo "Test (Chat Completions):"
+cat <<'CURL'
+curl -s http://localhost:8000/v1/chat/completions \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "model": "NVIDIA-Nemotron-Nano-12B-v2",
+    "messages": [
+      {"role": "system", "content": "/think"},
+      {"role": "user", "content": "Hello! How are you?"}
+    ],
+    "max_tokens": 128,
+    "temperature": 0.6,
+    "top_p": 0.95
+  }' | jq .
+CURL
+
+echo
+echo "Prometheus metrics: curl http://localhost:${PORT}/metrics | head -n 20"
