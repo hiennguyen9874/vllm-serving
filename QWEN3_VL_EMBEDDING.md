@@ -12,7 +12,8 @@ CUDA_VISIBLE_DEVICES=1 TORCH_CUDA_ARCH_LIST="8.0" uv run vllm serve Qwen/Qwen3-V
     --convert embed \
     --gpu-memory-utilization 0.25 \
     --host 0.0.0.0 \
-    --port 8003
+    --port 8003 \
+    --hf_overrides '{"matryoshka_dimensions":[1024]}'
 
 curl http://localhost:8003/v1/embeddings \
   -H 'accept: application/json' \
