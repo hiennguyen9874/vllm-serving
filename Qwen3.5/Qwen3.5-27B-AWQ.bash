@@ -12,7 +12,7 @@ if [[ -d .venv ]]; then
 fi
 
 # --- Model & naming ---------------------------------------------------------------------
-export MODEL_NAME="${MODEL_NAME:-QuantTrio/Qwen3.5-27B-AWQ}"
+export MODEL_NAME="${MODEL_NAME:-/home/jovyan/workspace/llm-quantization/autoround-quantization/output/Qwen3.5-27B-W4A16-AutoRound}"
 export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-Qwen3.5-27B}"
 export TOKENIZER_MODEL="${TOKENIZER_MODEL:-$MODEL_NAME}"
 export HF_CONFIG_PATH="${HF_CONFIG_PATH:-$MODEL_NAME}"
@@ -26,8 +26,8 @@ export TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST:-8.0}"
 
 # vLLM V1 engine & attention backend (FlashInfer, Torch SDPA, FlashAttention, etc.)
 # export VLLM_USE_V1="${VLLM_USE_V1:-1}"
-export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASHINFER}"
-# export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASH_ATTN}"
+# export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASHINFER}"
+export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASH_ATTN}"
 
 # Avoid CPU oversubscription from tokenizers
 # export TOKENIZERS_PARALLELISM="${TOKENIZERS_PARALLELISM:-false}"
@@ -95,7 +95,7 @@ fi
 # --- KV cache & memory ------------------------------------------------------------------
 # FP8 KV cache reduces GPU memory pressure and boosts throughput.
 # On NVIDIA, default to E5M2 (good range); allow override to E4M3 for accuracy needs.
-export KV_CACHE_DTYPE="${KV_CACHE_DTYPE:-auto}"   # fp8_e5m2 | fp8_e4m3 | auto | fp16 | bf16
+export KV_CACHE_DTYPE="${KV_CACHE_DTYPE:-fp8_e4m3}"   # fp8_e5m2 | fp8_e4m3 | auto | fp16 | bf16
 export GPU_MEMORY_UTILIZATION="${GPU_MEMORY_UTILIZATION:-0.8}" # Pre-allocate more KV to reduce preemption
 
 # --- API server scaling (parses requests on CPU) ----------------------------------------
@@ -121,39 +121,21 @@ echo "KV dtype=${KV_CACHE_DTYPE}  max_num_seqs=${MAX_NUM_SEQS}  max_num_batched_
 
 # --- Launch -----------------------------------------------------------------------------
 set -x
-# vllm serve "$MODEL_NAME" \
-#   --served-model-name "$SERVED_MODEL_NAME" \
-#   --tokenizer "$TOKENIZER_MODEL" \
-#   --hf-config-path "$HF_CONFIG_PATH" \
-#   --trust-remote-code \
-#   --dtype auto \
-#   --host "$HOST" \
-#   --port "$PORT" \
-#   --gpu-memory-utilization "$GPU_MEMORY_UTILIZATION" \
-#   --tensor-parallel-size "$TENSOR_PARALLEL_SIZE" \
-#   --data-parallel-size "$DATA_PARALLEL_SIZE" \
-#   --max-num-seqs "$MAX_NUM_SEQS" \
-#   --max-model-len "$MAX_MODEL_LEN" \
-#   --max-num-batched-tokens "$MAX_NUM_BATCHED_TOKENS" \
-#   --kv-cache-dtype "$KV_CACHE_DTYPE" \
-#   --enable-chunked-prefill \
-#   --api-server-count "$API_SERVER_COUNT" \
-#   --enable-prefix-caching \
-#   --mm-processor-cache-gb 0 \
-#   --limit-mm-per-prompt '{"image": 1, "video": 0}' \
-#   --reasoning-parser qwen3 \
-#   --swap-space 4 \
-#   --skip-mm-profiling \
-#   --enable-auto-tool-choice --tool-call-parser qwen3_coder
-
 vllm serve "$MODEL_NAME" \
   --served-model-name "$SERVED_MODEL_NAME" \
   --tokenizer "$TOKENIZER_MODEL" \
   --hf-config-path "$HF_CONFIG_PATH" \
   --trust-remote-code \
-  --port 8000 \
-  --max-model-len 32768 \
+  --dtype auto \
+  --host "$HOST" \
+  --port "$PORT" \
   --gpu-memory-utilization "$GPU_MEMORY_UTILIZATION" \
+  --max-num-seqs "$MAX_NUM_SEQS" \
+  --max-model-len "$MAX_MODEL_LEN" \
+  --max-num-batched-tokens "$MAX_NUM_BATCHED_TOKENS" \
+  --kv-cache-dtype "$KV_CACHE_DTYPE" \
+  --enable-chunked-prefill \
+  --api-server-count "$API_SERVER_COUNT" \
   --enable-prefix-caching \
   --reasoning-parser qwen3 \
   --enable-auto-tool-choice --tool-call-parser qwen3_coder \
