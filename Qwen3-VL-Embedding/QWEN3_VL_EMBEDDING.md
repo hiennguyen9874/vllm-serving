@@ -25,6 +25,16 @@ curl http://localhost:8001/v1/embeddings \
     "encoding_format": "float",
     "dimensions": 512
   }'
+
+curl https://llama-cpp.dscilab.com:20007/v1/embeddings \
+  -H 'accept: application/json' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "input": "Follow the white rabbit.",
+    "model": "Qwen3-VL-Embedding-2B",
+    "encoding_format": "float",
+    "dimensions": 512
+  }'
 ```
 
 ## Qwen3 Reranking

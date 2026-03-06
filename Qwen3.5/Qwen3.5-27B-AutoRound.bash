@@ -14,8 +14,8 @@ fi
 # --- Model & naming ---------------------------------------------------------------------
 export MODEL_NAME="${MODEL_NAME:-kaitchup/Qwen3.5-27B-autoround-W4A16}"
 export SERVED_MODEL_NAME="${SERVED_MODEL_NAME:-Qwen3.5-27B}"
-export TOKENIZER_MODEL="${TOKENIZER_MODEL:-Qwen/Qwen3.5-27B}"
-export HF_CONFIG_PATH="${HF_CONFIG_PATH:-Qwen/Qwen3.5-27B}"
+export TOKENIZER_MODEL="${TOKENIZER_MODEL:-kaitchup/Qwen3.5-27B-autoround-W4A16}"
+export HF_CONFIG_PATH="${HF_CONFIG_PATH:-kaitchup/Qwen3.5-27B-autoround-W4A16}"
 
 # --- Hardware / runtime envs ------------------------------------------------------------
 # A100 (SM80)
@@ -23,8 +23,8 @@ export TORCH_CUDA_ARCH_LIST="${TORCH_CUDA_ARCH_LIST:-8.0}"
 
 # vLLM V1 engine & attention backend (FlashInfer, Torch SDPA, FlashAttention, etc.)
 # export VLLM_USE_V1="${VLLM_USE_V1:-1}"
-# export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASHINFER}"
-export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASH_ATTN}"
+export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASHINFER}"
+# export VLLM_ATTENTION_BACKEND="${VLLM_ATTENTION_BACKEND:-FLASH_ATTN}"
 
 # Avoid CPU oversubscription from tokenizers
 # export TOKENIZERS_PARALLELISM="${TOKENIZERS_PARALLELISM:-false}"
@@ -93,7 +93,7 @@ fi
 # FP8 KV cache reduces GPU memory pressure and boosts throughput.
 # On NVIDIA, default to E5M2 (good range); allow override to E4M3 for accuracy needs.
 export KV_CACHE_DTYPE="${KV_CACHE_DTYPE:-fp8_e5m2}"   # fp8_e5m2 | fp8_e4m3 | auto | fp16 | bf16
-export GPU_MEMORY_UTILIZATION="${GPU_MEMORY_UTILIZATION:-0.8}" # Pre-allocate more KV to reduce preemption
+export GPU_MEMORY_UTILIZATION="${GPU_MEMORY_UTILIZATION:-0.7}" # Pre-allocate more KV to reduce preemption
 
 # --- API server scaling (parses requests on CPU) ----------------------------------------
 # Parallelize request parsing if you have spare CPU cores
